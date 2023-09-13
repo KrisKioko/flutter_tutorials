@@ -5,17 +5,37 @@ class Document {
   Document() : _json = jsonDecode(documentJson);
 
   (String, {DateTime modified}) get metadata {
-    if (_json.containsKey('metadata')) {
-      final metadataJson = _json['metadata'];
-      if (metadataJson is Map) {
-        final title = metadataJson['title'] as String;
-        final localModified = DateTime.parse(
-          metadataJson['modified'] as String,
-        );
-        return (title, modified: localModified);
-      }
-    }
-    throw const FormatException('Unexpected JSON');
+    if (_json
+         case {
+          'metadata': {
+            'title': String title,
+            'modified': String localModified,
+          }
+         }) {
+          return (title, modified: DateTime.parse(localModified));
+         } else {
+          throw const FormatException('Unexpected JSON');
+         }
+  }
+}
+
+class Block {
+  final String type;
+  final String text;
+
+  Block(this.type, this.text);
+  
+  factory Block.fromJson(Map<String, dynamic> json) {
+    if (json
+         case {
+          'type': final type,
+          'text': final text,
+         }
+        ) {
+          return Block(type, text);
+        } else {
+          throw const FormatException('Unexpected JSON format');
+        }
   }
 }
 
@@ -36,7 +56,7 @@ const documentJson = '''
     },
     {
       "type": "checkbox",
-      "checked": "false",
+      "checked": "true",
       "text": "Learn how to code"
     }
   ]
