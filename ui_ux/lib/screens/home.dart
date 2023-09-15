@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ui_ux_app/app.dart';
 import 'package:ui_ux_app/data.dart';
 
 
@@ -12,7 +13,9 @@ class Home extends StatelessWidget {
 
   @override
   Widget build (BuildContext context) {
-    final (title, modified: modified) = document.metadata;
+    final (title, :modified) = document.metadata;
+    final formattedModifiedDate = formatDate(modified);
+    final blocks = document.getBlocks();
 
     return Scaffold(
       appBar: AppBar(
@@ -23,7 +26,16 @@ class Home extends StatelessWidget {
       body: Column(
         children: [
           Center(
-            child: Text('Last modified $modified'),
+            child: Text('Last modified: $formattedModifiedDate'),
+          ),
+          
+          Expanded(
+            child: ListView.builder(
+              itemCount: blocks.length,
+              itemBuilder: (context, index) {
+                return BlockWidget(block: blocks[index]);
+              },
+            ),
           ),
         ],
       ),
