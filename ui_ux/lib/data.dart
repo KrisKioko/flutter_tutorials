@@ -17,26 +17,42 @@ class Document {
           throw const FormatException('Unexpected JSON');
          }
   }
+
+  List<Block> getBlocks() {
+    if (_json case {'blocks': List blocksJson}) {
+      return [for (final blockJson in blocksJson) Block.fromJson(blockJson)];
+    } else {
+      throw const FormatException('Unexpected JSON format');
+    }
+  }
+}
+sealed class Block {
+  Block();
+
+  factory Block.fromJson(Map<String, Object?> json) {
+    return switch (json) {
+      {'type': 'h1', 'text': String text} => HeaderBlock(text),
+      {'type': 'p', 'text': String text} => ParagraphBlock(text),
+      {'type': 'checkbox', 'text': String text, 'checked': bool checked} => CheckboxBlock(text, checked), 
+      _ => throw const FormatException('Unexpected JSON format'),
+    };
+  }
 }
 
-class Block {
-  final String type;
+class HeaderBlock extends Block {
   final String text;
+  HeaderBlock(this.text);
+}
 
-  Block(this.type, this.text);
-  
-  factory Block.fromJson(Map<String, dynamic> json) {
-    if (json
-         case {
-          'type': final type,
-          'text': final text,
-         }
-        ) {
-          return Block(type, text);
-        } else {
-          throw const FormatException('Unexpected JSON format');
-        }
-  }
+class ParagraphBlock extends Block {
+  final String text;
+  ParagraphBlock(this.text);
+}
+
+class CheckboxBlock extends Block {
+  final String text;
+  final bool isChecked;
+  CheckboxBlock(this.text, this.isChecked);
 }
 
 const documentJson = '''
@@ -52,11 +68,11 @@ const documentJson = '''
     },
     {
       "type": "p",
-      "text": "This is just a formality"
+      "text": "Learning Flutter as a Beginner"
     },
     {
       "type": "checkbox",
-      "checked": "true",
+      "checked": false,
       "text": "Learn how to code"
     }
   ]
